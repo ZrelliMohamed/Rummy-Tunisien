@@ -1,0 +1,38 @@
+Étape 1 : Infrastructure & Assets (Le socle)
+Avant de voir une carte, il faut préparer le terrain.
+
+Initialisation du projet : Configurer un serveur web simple (Vite ou un serveur Express static) pour servir les fichiers Phaser.
+
+Asset Loading : Charger les images. Tu auras besoin d'une "Sprite Sheet" (une grande image contenant les 52 cartes) ou de 52 images individuelles, d'un fond de table (tapis vert) et des sons.
+
+Connexion Socket.io : Établir le pont entre Phaser et ton serveur Node.js actuel.
+
+Étape 2 : L'Espace de Jeu (Le visuel statique)
+On crée la "Scène" principale.
+
+Layout : Définir les zones (Zone du joueur en bas, pioche au centre, défausse à côté, et les emplacements pour les autres joueurs).
+
+Affichage de la main : Créer une logique pour aligner les cartes en bas de l'écran de manière élégante (éventail ou ligne droite).
+
+Étape 3 : Interactions & Gameplay (Le coeur)
+C'est ici que le jeu prend vie.
+
+Le Drag & Drop : Permettre au joueur de déplacer ses cartes pour les réorganiser.
+
+Les Actions de base : Cliquer sur la pioche pour demander une carte au serveur, et faire glisser une carte sur la défausse pour terminer son tour.
+
+Réception des événements : Quand le serveur envoie cardDrawn, Phaser doit créer la carte et l'animer vers la main du joueur.
+
+Étape 4 : La Logique des "Melds" (Les combinaisons)
+C'est la partie spécifique au Rami Tunisien.
+
+Sélection multiple : Pouvoir cliquer sur plusieurs cartes pour les sélectionner.
+
+Bouton "Poser" : Envoyer ces cartes au serveur pour validation via l'événement meldCards.
+
+Affichage sur table : Si le serveur valide, déplacer les cartes vers la zone "Table".
+
+Étape 5 : UI & Polissage (Le confort)
+Interface utilisateur (UI) : Afficher le score, le nom du joueur dont c'est le tour, et des messages d'erreur (ex: "Il vous manque X points pour ouvrir").
+
+Animations : Ajouter des transitions fluides (cartes qui volent, surbrillance du joueur actif).

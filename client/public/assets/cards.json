@@ -1,0 +1,1153 @@
+{
+	"textures": [
+		{
+			"image": "cards",
+			"format": "RGBA8888",
+			"size": {
+				"w": 5500,
+				"h": 3630
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "10_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "10_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 0,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "10_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 0,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "10_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 0,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "2_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 0,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "2_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 500,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "2_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 500,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "2_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 500,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "3_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 500,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "3_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 500,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "3_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1000,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "3_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1000,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "4_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1000,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "4_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1000,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "4_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1000,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "4_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1500,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "5_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1500,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "5_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1500,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "5_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1500,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "5_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 1500,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "6_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2000,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "6_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2000,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "6_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2000,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "6_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2000,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "7_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2000,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "7_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2500,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "7_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2500,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "7_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2500,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "8_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2500,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "8_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 2500,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "8_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3000,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "8_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3500,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "9_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4000,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "9_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4500,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "9_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 5000,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "9_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3000,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "ace_of_clubs.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3000,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "ace_of_diamonds.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3000,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "ace_of_hearts.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3000,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "ace_of_spades.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3500,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "black_joker.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4000,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "jack_of_clubs2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4500,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "jack_of_diamonds2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 5000,
+						"y": 726,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "jack_of_hearts2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3500,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "jack_of_spades2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3500,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "king_of_clubs2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 3500,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "king_of_diamonds2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4000,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "king_of_hearts2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4500,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "king_of_spades2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 5000,
+						"y": 1452,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "queen_of_clubs2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4000,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "queen_of_diamonds2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4000,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "queen_of_hearts2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4500,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "queen_of_spades2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 4500,
+						"y": 2904,
+						"w": 500,
+						"h": 726
+					}
+				},
+				{
+					"filename": "red_joker.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 500,
+						"h": 726
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 500,
+						"h": 726
+					},
+					"frame": {
+						"x": 5000,
+						"y": 2178,
+						"w": 500,
+						"h": 726
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "http://free-tex-packer.com",
+		"version": "0.6.7"
+	}
+}
