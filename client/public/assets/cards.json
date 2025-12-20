@@ -871,7 +871,7 @@
 					}
 				},
 				{
-					"filename": "jack_of_clubs2.png",
+					"filename": "jack_of_clubs.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -892,7 +892,7 @@
 					}
 				},
 				{
-					"filename": "jack_of_diamonds2.png",
+					"filename": "jack_of_diamonds.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -913,7 +913,7 @@
 					}
 				},
 				{
-					"filename": "jack_of_hearts2.png",
+					"filename": "jack_of_hearts.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -934,7 +934,7 @@
 					}
 				},
 				{
-					"filename": "jack_of_spades2.png",
+					"filename": "jack_of_spades.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -955,7 +955,7 @@
 					}
 				},
 				{
-					"filename": "king_of_clubs2.png",
+					"filename": "king_of_clubs.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -976,7 +976,7 @@
 					}
 				},
 				{
-					"filename": "king_of_diamonds2.png",
+					"filename": "king_of_diamonds.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -997,7 +997,7 @@
 					}
 				},
 				{
-					"filename": "king_of_hearts2.png",
+					"filename": "king_of_hearts.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -1018,7 +1018,7 @@
 					}
 				},
 				{
-					"filename": "king_of_spades2.png",
+					"filename": "king_of_spades.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -1039,7 +1039,7 @@
 					}
 				},
 				{
-					"filename": "queen_of_clubs2.png",
+					"filename": "queen_of_clubs.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -1060,7 +1060,7 @@
 					}
 				},
 				{
-					"filename": "queen_of_diamonds2.png",
+					"filename": "queen_of_diamonds.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -1081,7 +1081,7 @@
 					}
 				},
 				{
-					"filename": "queen_of_hearts2.png",
+					"filename": "queen_of_hearts.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -1102,7 +1102,7 @@
 					}
 				},
 				{
-					"filename": "queen_of_spades2.png",
+					"filename": "queen_of_spades.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
