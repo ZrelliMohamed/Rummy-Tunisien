@@ -21,33 +21,54 @@ function getCardValue(rank, isLowAce = false) {
 // 1. Initialisation et Distribution
 // ============================================
 
+// Ajoutez cet objet de correspondance en haut du fichier serveur
+const RANK_NAMES = {
+    1: 'ace',
+    11: 'jack',
+    12: 'queen',
+    13: 'king'
+};
+
+const SUIT_NAMES = {
+    'S': 'spades',
+    'H': 'hearts',
+    'D': 'diamonds',
+    'C': 'clubs'
+};
+
 function createDeck() {
     let deck = [];
     let idCounter = 0;
 
-    // Création des 2 jeux de 52 cartes
     for (let i = 0; i < 2; i++) {
         for (let suit of SUITS) {
             for (let rank of RANKS) {
+                // Génération du nom de texture identique au client
+                // Ex: "ace_of_spades.png" ou "2_of_hearts.png"
+                const rankName = RANK_NAMES[rank] || rank;
+                const suitName = SUIT_NAMES[suit];
+                const textureName = `${rankName}_of_${suitName}.png`;
+
                 deck.push({
                     id: idCounter++,
                     suit: suit,
                     rank: rank,
-                    value: getCardValue(rank, false), // Valeur par défaut (As = 10)
-                    isJoker: false
+                    value: getCardValue(rank, false),
+                    isJoker: false,
+                    texture: textureName // <-- AJOUT ICI
                 });
             }
         }
     }
 
-    // Ajout des 4 Jokers
     for (let j = 0; j < 4; j++) {
         deck.push({
             id: idCounter++,
             suit: 'Joker',
             rank: 0,
             value: 0,
-            isJoker: true
+            isJoker: true,
+            texture: 'red_joker.png' // <-- NOM EXACT DANS TON ATLAS
         });
     }
     return deck;
@@ -86,7 +107,7 @@ function validateAndScore(meld) {
 
     // --- TEST BRELAN / CARRÉ ---
     const isSet = realCards.every(c => c.rank === realCards[0].rank) &&
-                  new Set(realCards.map(c => c.suit)).size === realCards.length;
+        new Set(realCards.map(c => c.suit)).size === realCards.length;
 
     if (isSet && meld.length <= 4) {
         const rank = realCards[0].rank;

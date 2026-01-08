@@ -1,221 +1,296 @@
-// ============================================
-// server/index.js
-// Serveur de jeu - Rummy Tunisien
-// ============================================
-
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 const http = require('http');
+const passport = require('passport');
 const { Server } = require('socket.io');
-
-// Importation de la logique de jeu validée hier
-const { createDeck, shuffle, dealCards, validateAndScore } = require('./logic/gameLogic');
+const User = require('./models/User');
+const socialRoutes = require('./routes/social');
 
 const app = express();
+
+// --- CONFIGURATION ---
+require('./config/passport')(passport);
+app.use(passport.initialize());
+app.use(express.json());
+app.use(cors());
+
+// --- MONGODB ---
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/rummy_tunisien')
+    .then(() => console.log("✨ MongoDB Connecté"))
+    .catch(err => console.log("❌ Erreur DB:", err));
+
+// --- SOCKET.IO SETUP ---
 const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
-// Configuration de Socket.io avec CORS pour autoriser la connexion du client Phaser
-const io = new Server(server, {
-    cors: {
-        origin: "*", // En développement, on autorise tout
-        methods: ["GET", "POST"]
-    }
-});
+app.set('socketio', io);
 
-// L'ÉTAT DU JEU (La mémoire du serveur)
-let gameState = {
-    players: {},       // Liste des joueurs connectés { socketId: { id, name, hand, hasOpened, points } }
-    deck: [],          // Cartes de la pioche
-    discardPile: [],   // Cartes de la défausse
-    currentTurn: null, // ID (socket.id) du joueur qui doit jouer
-    gameStarted: false
-};
+// --- GESTION DES LOBBIES ---
+const activeLobbies = {};
 
-// --- FONCTIONS UTILITAIRES ---
+// Fonction utilitaire pour réinitialiser un joueur seul
+function resetPlayerToPrivateLobby(socket) {
+    const userId = socket.userId?.toString();
+    if (!userId) return;
 
-/**
- * Mélange la défausse et la remet dans le deck quand la pioche est vide
- */
-function recycleDiscardPile() {
-    if (gameState.discardPile.length <= 1) return;
+    const newLobbyId = `lobby_${userId}`;
+    activeLobbies[newLobbyId] = {
+        id: newLobbyId,
+        players: [{ id: userId, username: socket.username || "Joueur", isHost: true }],
+        hostId: userId
+    };
 
-    // On garde la dernière carte jetée pour la laisser visible
-    const lastCard = gameState.discardPile.pop();
-    
-    // On mélange le reste pour créer un nouveau deck
-    gameState.deck = shuffle([...gameState.discardPile]);
-    
-    // On vide l'ancienne défausse et on y remet la carte de référence
-    gameState.discardPile = [lastCard];
-    
-    console.log(`♻️ Défausse recyclée. Nouveau deck : ${gameState.deck.length} cartes.`);
+    socket.join(newLobbyId);
+    socket.emit('update_lobby', {
+        players: activeLobbies[newLobbyId].players,
+        lobbyId: newLobbyId,
+        hostId: userId
+    });
+    console.log(`🏠 ${socket.username} est maintenant dans son lobby privé.`);
 }
 
-// --- GESTION DES CONNEXIONS SOCKET.IO ---
+// Fonction centralisée pour sortir d'un lobby
+const executeLobbyExit = (socket) => {
+    const userId = socket.userId?.toString();
+    if (!userId) return;
 
-io.on('connection', (socket) => {
-    console.log(`🔌 Nouveau joueur connecté : ${socket.id}`);
+    // 1. On récupère les IDs des lobbies, en mettant les "table_" en priorité pour la recherche
+    const lobbyIds = Object.keys(activeLobbies).sort((a, b) => b.startsWith('table_') - a.startsWith('table_'));
 
-    // [ACTION] : Un joueur rejoint le lobby
-    socket.on('joinGame', (playerName) => {
-        if (Object.keys(gameState.players).length < 4) {
-            gameState.players[socket.id] = {
-                id: socket.id,
-                name: playerName || "Anonyme",
-                hand: [],
-                hasOpened: false,
-                points: 0
-            };
-            console.log(`📝 ${playerName} a rejoint la partie.`);
-            
-            // On informe tout le monde du nouvel arrivant
-            io.emit('playerJoined', Object.values(gameState.players));
-        }
-    });
+    for (const lobbyId of lobbyIds) {
+        const lobby = activeLobbies[lobbyId];
+        const playerIndex = lobby.players.findIndex(p => p.id.toString() === userId);
 
-    // [ACTION] : Lancer la partie
-    socket.on('startGame', () => {
-        const playerIds = Object.keys(gameState.players);
-        if (playerIds.length < 2) return; // Il faut au moins 2 joueurs
+        if (playerIndex !== -1) {
+            console.log(`🚪 Sortie de ${socket.username} du lobby ${lobbyId}`);
 
-        // 1. Initialisation du Deck
-        gameState.deck = shuffle(createDeck());
-        
-        // 2. Distribution (14 cartes chacun, 15 pour le premier)
-        const distribution = dealCards(gameState.deck, playerIds.length);
-        
-        playerIds.forEach((id, index) => {
-            gameState.players[id].hand = distribution.hands[index];
-            // Envoi de la main en privé au joueur concerné
-            io.to(id).emit('yourHand', gameState.players[id].hand);
-        });
+            const otherPlayers = lobby.players.filter(p => p.id.toString() !== userId);
 
-        // 3. Mise à jour des piles
-        gameState.deck = distribution.remainingDeck;
-        gameState.discardPile = [gameState.deck.pop()]; // Première carte visible
-        
-        // 4. État global
-        gameState.gameStarted = true;
-        gameState.currentTurn = playerIds[0]; // Le premier joueur commence
-
-        // 5. Signal de départ à tous les joueurs
-        io.emit('gameUpdate', {
-            discardPile: gameState.discardPile,
-            currentTurn: gameState.currentTurn,
-            playerNames: Object.values(gameState.players).map(p => p.name),
-            deckCount: gameState.deck.length
-        });
-    });
-
-    // [ACTION] : Piocher une carte
-    socket.on('drawCard', () => {
-        const player = gameState.players[socket.id];
-        if (!player || !gameState.gameStarted) return;
-        if (gameState.currentTurn !== socket.id) return socket.emit('error', "Ce n'est pas votre tour !");
-
-        // Recyclage automatique si nécessaire
-        if (gameState.deck.length === 0) recycleDiscardPile();
-
-        const card = gameState.deck.pop();
-        player.hand.push(card);
-
-        // On envoie la carte au joueur et on prévient les autres du deck
-        socket.emit('cardDrawn', card);
-        io.emit('deckUpdate', { deckCount: gameState.deck.length });
-    });
-
-    // [ACTION] : Jeter une carte (Fin de tour)
-    socket.on('discardCard', (cardId) => {
-        const player = gameState.players[socket.id];
-        if (!player || gameState.currentTurn !== socket.id) return;
-
-        const cardIndex = player.hand.findIndex(c => c.id === cardId);
-        if (cardIndex === -1) return;
-
-        // Retrait de la main et ajout à la défausse
-        const discardedCard = player.hand.splice(cardIndex, 1)[0];
-        gameState.discardPile.push(discardedCard);
-
-        // Changement de tour (Joueur suivant)
-        const playerIds = Object.keys(gameState.players);
-        const currentIndex = playerIds.indexOf(socket.id);
-        const nextIndex = (currentIndex + 1) % playerIds.length;
-        gameState.currentTurn = playerIds[nextIndex];
-
-        // Mise à jour visuelle pour tous
-        io.emit('gameUpdate', {
-            discardPile: gameState.discardPile,
-            currentTurn: gameState.currentTurn
-        });
-        
-        // Mise à jour de la main du joueur
-        socket.emit('yourHand', player.hand);
-    });
-
-    // [ACTION] : Poser des combinaisons (Ouvrir / Mélanger)
-    socket.on('meldCards', (melds) => {
-        const player = gameState.players[socket.id];
-        if (!player || gameState.currentTurn !== socket.id) return;
-
-        let totalScore = 0;
-        let allMeldsValid = true;
-
-        // Validation de chaque groupe via notre cerveau logic/gameLogic.js
-        melds.forEach(meld => {
-            const result = validateAndScore(meld);
-            if (result.isValid) {
-                totalScore += result.score;
-            } else {
-                allMeldsValid = false;
+            // --- CAS A : LE LOBBY DEVIENT VIDE ---
+            if (otherPlayers.length === 0) {
+                console.log(`🗑️ Fermeture du lobby vide : ${lobbyId}`);
+                delete activeLobbies[lobbyId];
             }
+
+            // --- CAS B : IL RESTE 1 SEUL JOUEUR (DISSOLUTION DUO) ---
+            else if (otherPlayers.length === 1 && lobbyId.startsWith('table_')) {
+                const survivor = otherPlayers[0];
+                console.log(`📢 Dissolution : Retour en solo pour ${survivor.username}`);
+
+                // On informe le dernier joueur qu'il doit quitter la table
+                io.to(lobbyId).emit('lobby_dissolved');
+
+                // On supprime la table de la mémoire
+                delete activeLobbies[lobbyId];
+            }
+
+            // --- CAS C : IL RESTE PLUSIEURS JOUEURS (MIGRATION HOST) ---
+            else {
+                // On retire le joueur de la liste
+                lobby.players.splice(playerIndex, 1);
+
+                // Si celui qui part était le Host, on transfère la couronne
+                if (lobby.hostId.toString() === userId) {
+                    const newHost = otherPlayers[0]; // Le prochain sur la liste
+                    lobby.hostId = newHost.id.toString();
+
+                    // On met à jour l'état interne des joueurs
+                    lobby.players = lobby.players.map(p => ({
+                        ...p,
+                        isHost: p.id.toString() === lobby.hostId
+                    }));
+
+                    console.log(`👑 MIGRATION : Nouveau Host de ${lobbyId} est ${newHost.username}`);
+                }
+
+                // On informe tout le monde du changement de composition
+                io.to(lobbyId).emit('update_lobby', {
+                    players: lobby.players,
+                    hostId: lobby.hostId
+                });
+            }
+
+            // Une fois le joueur traité, on sort de la boucle
+            break;
+        }
+    }
+
+    // Enfin, on s'assure que le joueur qui sort est remis dans son propre lobby privé (solo)
+    const privateLobbyId = `lobby_${userId}`;
+    activeLobbies[privateLobbyId] = {
+        id: privateLobbyId,
+        hostId: userId,
+        players: [{ id: userId, username: socket.username, isHost: true }]
+    };
+    socket.join(privateLobbyId);
+    console.log(`🏠 ${socket.username} est maintenant dans son lobby privé.`);
+};
+
+// --- LOGIQUE TEMPS RÉEL ---
+io.on('connection', (socket) => {
+    console.log("🔌 Nouveau client connecté :", socket.id);
+
+    socket.on('identify', async (userId) => {
+        try {
+            // 1. Sécurité : vérifier que l'ID est valide
+            if (!userId || userId === "null" || userId === "undefined") return;
+
+            socket.userId = userId;
+            // 2. Création du canal personnel (VITAL pour l'approche directe)
+            socket.join(userId.toString());
+
+            const user = await User.findById(userId);
+            if (user) {
+                socket.username = user.username;
+
+                // 3. Mise à jour du statut en une seule fois
+                await User.findByIdAndUpdate(userId, {
+                    socketId: socket.id,
+                    isOnline: true
+                });
+
+                console.log(`👤 Utilisateur ${user.username} identifié (Canal perso : ${userId})`);
+
+                // 4. On le remet dans son lobby privé par défaut
+                resetPlayerToPrivateLobby(socket);
+            }
+        } catch (err) {
+            console.error("Erreur identification:", err);
+        }
+    });
+
+    socket.on('invite_to_game', async (data) => {
+        const { toId, fromName } = data;
+        const fromId = socket.userId?.toString();
+        if (!fromId) return;
+
+        // --- LOGIQUE DE DÉTECTION DE LOBBY ---
+        // On cherche si le socket est déjà dans une "table_" existante
+        let currentLobbyId = null;
+        for (const [id, lobby] of Object.entries(activeLobbies)) {
+            if (id.startsWith('table_') && lobby.players.some(p => p.id.toString() === fromId)) {
+                currentLobbyId = id;
+                break;
+            }
+        }
+
+        // Si on n'est pas dans une table, on crée l'ID par défaut
+        const lobbyId = currentLobbyId || `table_${fromId}`;
+
+        // Initialisation du lobby si nécessaire
+        if (!activeLobbies[lobbyId]) {
+            activeLobbies[lobbyId] = {
+                id: lobbyId,
+                hostId: fromId,
+                players: [{ id: fromId, username: fromName, isHost: true }]
+            };
+        }
+
+        // On s'assure que le host est bien dans la room Socket.io
+        socket.join(lobbyId);
+
+        // On envoie l'invitation à la room personnelle du destinataire
+        io.to(toId.toString()).emit('receive_game_invitation', {
+            lobbyId: lobbyId,
+            fromName: fromName,
+            fromId: fromId,
+            type: 'GAME_INVITE'
         });
 
-        if (!allMeldsValid) {
-            return socket.emit('error', "Une de vos combinaisons est invalide.");
+        // On rafraîchit l'UI du demandeur
+        socket.emit('update_lobby', {
+            players: activeLobbies[lobbyId].players,
+            hostId: activeLobbies[lobbyId].hostId
+        });
+
+        console.log(`📩 [INVITE] ${fromName} invite ${toId} dans le lobby : ${lobbyId}`);
+    });
+
+    socket.on('accept_game_invite', async (data) => {
+        const { lobbyId, username } = data;
+        const guestId = socket.userId.toString();
+
+        // On récupère le HostId réel depuis l'objet lobby ou depuis l'ID du lobby
+        let lobby = activeLobbies[lobbyId];
+
+        // Si le lobby n'existe pas encore (cas rare), on l'initialise
+        if (!lobby) {
+            console.log(`⚠️ Lobby ${lobbyId} non trouvé, création à la volée...`);
+            const extractedHostId = lobbyId.replace('table_', '');
+            activeLobbies[lobbyId] = {
+                id: lobbyId,
+                players: [],
+                hostId: extractedHostId
+            };
+            lobby = activeLobbies[lobbyId];
         }
 
-        // Vérification de la règle des 51 points (Première pose)
-        if (!player.hasOpened && totalScore < 51) {
-            return socket.emit('error', `Besoin de 51 points minimum. Score actuel : ${totalScore}`);
+        console.log(`✅ ${username} rejoint ${lobbyId}`);
+
+        // 1. Nettoyage des lobbies privés (solo)
+        delete activeLobbies[`lobby_${guestId}`];
+
+        // 2. Gestion du Host s'il n'est pas encore dans la liste des joueurs
+        const hostId = lobby.hostId.toString();
+        const isHostAlreadyIn = lobby.players.find(p => p.id.toString() === hostId);
+
+        if (!isHostAlreadyIn) {
+            const hostSocket = [...io.sockets.sockets.values()].find(s => s.userId?.toString() === hostId);
+            if (hostSocket) {
+                hostSocket.leave(`lobby_${hostId}`);
+                hostSocket.join(lobbyId);
+                lobby.players.push({
+                    id: hostId,
+                    username: hostSocket.username || "Host",
+                    isHost: true
+                });
+            }
         }
 
-        // Si OK, on retire définitivement les cartes de la main du joueur
-        melds.forEach(meld => {
-            meld.forEach(cardInMeld => {
-                const index = player.hand.findIndex(c => c.id === cardInMeld.id);
-                if (index !== -1) player.hand.splice(index, 1);
+        // 3. Déplacer l'invité
+        socket.leave(`lobby_${guestId}`);
+        socket.join(lobbyId);
+
+        // 4. Ajouter l'invité à la liste des joueurs (sécurité doublon)
+        const alreadyIn = lobby.players.find(p => p.id.toString() === guestId);
+        if (!alreadyIn) {
+            lobby.players.push({
+                id: guestId,
+                username: username,
+                isHost: (guestId === hostId) // Il est host seulement si son ID matche
             });
+        }
+
+        // 5. Envoi de l'update à TOUTE la table (Host + Invités)
+        io.to(lobbyId).emit('update_lobby', {
+            players: lobby.players,
+            hostId: lobby.hostId
         });
-
-        player.hasOpened = true;
-        player.points += totalScore;
-
-        // On affiche les cartes sur la table pour tout le monde
-        io.emit('cardsMelded', {
-            playerName: player.name,
-            melds: melds,
-            playerScore: player.points
-        });
-
-        // Mise à jour de la main privée du joueur
-        socket.emit('yourHand', player.hand);
     });
 
-    // [ACTION] : Déconnexion
-    socket.on('disconnect', () => {
-        console.log(`❌ Joueur déconnecté : ${socket.id}`);
-        delete gameState.players[socket.id];
-        // On actualise la liste des joueurs pour les autres
-        io.emit('playerJoined', Object.values(gameState.players));
+    socket.on('leave_lobby', () => {
+        executeLobbyExit(socket);
+        // Après être sorti de la table, on lui recrée son espace solo
+        resetPlayerToPrivateLobby(socket);
     });
+
+    socket.on('disconnect', async () => {
+        if (socket.userId) {
+            executeLobbyExit(socket);
+            try {
+                await User.findByIdAndUpdate(socket.userId, { isOnline: false, socketId: null });
+                console.log(`🔌 Déconnexion de ${socket.username}`);
+            } catch (err) {
+                console.error("Erreur disconnect DB:", err);
+            }
+        }
+    })
 });
 
-// Lancement du serveur
-const PORT = 3000;
-server.listen(PORT, () => {
-    console.log(`
-    ==========================================
-    ✅ SERVEUR DE RAMI TUNISIEN LANCÉ !
-    🚀 Adresse : http://localhost:${PORT}
-    ==========================================
-    `);
-});
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/social', socialRoutes);
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`🚀 Serveur sur port ${PORT}`));
