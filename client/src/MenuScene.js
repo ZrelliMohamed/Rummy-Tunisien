@@ -1,13 +1,16 @@
 import { LobbyCard } from './components/LobbyCard.js';
 import { SocialPanel } from './components/SocialPanel.js';
 import { socketService } from './services/SocketService.js';
+import { SettingsOverlay } from './components/SettingsOverlay.js';
 
 export class MenuScene extends Phaser.Scene {
     constructor() {
         super('MenuScene');
         this.leaveBtn = null;
+        this.actionBtn = null;
         this.configBtn = null;
         this.currentHostId = null;
+        this.canStartGame = false;
     }
 
     init(data) {
@@ -52,6 +55,7 @@ export class MenuScene extends Phaser.Scene {
         // 2. Création de l'interface
         this.createTopBar(width);
         this.createLobby(width, height);
+        this.createActionButtons(width, height);
 
         // 3. Initialisation du Panneau Social
         this.socialPanel = new SocialPanel(this);
@@ -66,6 +70,25 @@ export class MenuScene extends Phaser.Scene {
                     console.log(`📡 [SOCKET DEBUG] Reçu: ${eventName}`, args);
                 });
 
+                socket.on('configuration_cancelled', () => {
+                    console.log("4bis. [CLIENT] Reçu 'configuration_cancelled' spécifique");
+
+                    // 1. Fermer l'overlay si c'est le host (sécurité)
+                    if (this.settingsOverlay) {
+                        this.settingsOverlay.destroy();
+                        this.settingsOverlay = null;
+                    }
+
+                    // 2. Supprimer le texte de clignotement chez les invités
+                    if (this.waitingText) {
+                        this.waitingText.destroy();
+                        this.waitingText = null;
+                    }
+
+                    // 3. Le serveur va généralement envoyer un 'update_lobby' juste après,
+                    // mais on s'assure que l'UI est propre ici.
+                });
+                // --- NOTIFICATIONS ---
                 socket.on('new_friend_request', (data) => {
                     this.socialPanel.addInvitation({ ...data, type: 'FRIEND_REQUEST' });
                     this.triggerNotificationAlert();
@@ -76,63 +99,116 @@ export class MenuScene extends Phaser.Scene {
                     this.triggerNotificationAlert();
                 });
 
-                // --- MISE À JOUR DU LOBBY ---
-               socket.on('update_lobby', (data) => {
-                    const players = data.players || (Array.isArray(data) ? data : null);
-                    const hostId = data.hostId || this.currentHostId;
-                    const myId = this.user.id || this.user._id;
+                // --- MISE À JOUR DU LOBBY (Joueurs, Prêt, Boutons) ---
+                socket.on('update_lobby', (data) => {
+                    const players = data.players;
+                    const hostId = data.hostId;
+                    const myId = (this.user.id || this.user._id).toString();
+
+                    // ON MISE À JOUR LE STATUT ICI
+                    this.lobbyStatus = data.status || 'waiting';
+
+                    if (this.lobbyStatus === 'waiting' && this.waitingText) {
+                        this.waitingText.destroy();
+                        this.waitingText = null;
+                    }
 
                     if (!players) return;
 
-                    console.log("--- MISE À JOUR LOBBY ---", players);
-                    this.currentHostId = hostId; // Mise à jour globale du chef actuel
+                    this.currentHostId = hostId;
+                    this.canStartGame = data.canStart;
 
-                    // 1. Reset visuel de toutes les cartes
                     this.cards.forEach(card => card.updateData(null));
 
-                    // 2. Identifier et placer l'utilisateur local (Moi)
-                    const me = players.find(p => p.id.toString() === myId.toString());
+                    const me = players.find(p => p.id.toString() === myId);
                     if (me) {
-                        // On vérifie si JE suis le host pour l'icône sur ma carte
                         me.isHost = (me.id.toString() === hostId?.toString());
                         this.cards[1].updateData(me);
 
-                        // 3. Placer les autres joueurs
-                        const others = players.filter(p => p.id.toString() !== myId.toString());
+                        const others = players.filter(p => p.id.toString() !== myId);
                         const slots = [0, 2, 3];
-
                         others.forEach((player, index) => {
-                            if (slots[index] !== undefined && this.cards[slots[index]]) {
-                                // On vérifie si CET ami est le host
+                            if (slots[index] !== undefined) {
                                 player.isHost = (player.id.toString() === hostId?.toString());
                                 this.cards[slots[index]].updateData(player);
                             }
                         });
                     }
 
-                    // 4. Gestion du bouton Quitter
-                    // On ne montre le bouton que si on est dans une table (plus de 1 joueur)
-                    if (players.length > 1) {
-                        this.showLeaveButton();
-                    } else {
-                        this.hideLeaveButton();
-                        this.currentHostId = myId; // Si seul, je suis mon propre host
-                    }
+                    const isHost = (myId === hostId?.toString());
+                    const isReady = me ? me.isReady : false;
+
+                    // L'UI va maintenant utiliser this.lobbyStatus pour décider de la visibilité
+                    this.updateActionBtnUI(isHost, isReady, data.canStart);
                 });
 
-                // --- GESTION DE LA DISSOLUTION FORCÉE ---
-                socket.on('lobby_dissolved', () => {
-                    console.log("💥 Table dissoute, je retourne en solo...");
+                // --- GESTION DE LA PHASE DE CONFIGURATION (Overlay) ---
+                socket.on('lobby_status_changed', (data) => {
+                    console.log("4. [CLIENT] Reçu 'lobby_status_changed':", data.status);
 
-                    // 1. On vide l'affichage des autres cartes
+                    // MISE À JOUR DU STATUT
+                    this.lobbyStatus = data.status;
+                    const myId = (this.user.id || this.user._id).toString();
+                    const isHost = (this.currentHostId?.toString() === myId);
+
+                    if (data.status === 'configuring') {
+                        if (isHost) {
+                            if (this.settingsOverlay) this.settingsOverlay.destroy();
+                            this.settingsOverlay = new SettingsOverlay(this, data.settings);
+
+                            this.events.once('start_final_game', (finalSettings) => {
+                                socket.emit('confirm_game_start', finalSettings);
+                            });
+                        } else {
+                            this.showWaitingMessage();
+                        }
+                    } else if (data.status === 'waiting') {
+                        console.log("5. [CLIENT] Nettoyage de l'interface");
+                        if (this.waitingText) {
+                            this.waitingText.destroy();
+                            this.waitingText = null;
+                        }
+                        if (this.settingsOverlay) {
+                            this.settingsOverlay.destroy();
+                            this.settingsOverlay = null;
+                        }
+                    }
+
+                    // ON FORCE LA MISE À JOUR DES BOUTONS (pour les masquer ou les réafficher)
+                    // On récupère l'état ready actuel via la carte du joueur (index 1)
+                    const myPlayerData = this.cards[1].playerData;
+                    this.updateActionBtnUI(isHost, myPlayerData?.isReady || false, this.canStartGame);
+                });
+
+                // --- LANCEMENT OFFICIEL DE LA PARTIE ---
+                // --- LANCEMENT OFFICIEL DE LA PARTIE ---
+                // --- LANCEMENT OFFICIEL DE LA PARTIE ---
+                socket.on('game_started', (gameData) => { // <--- L'argument s'appelle gameData
+                    console.log("🚀 [TRANSITION] Signal reçu, basculement vers GameScene");
+
+                    // Nettoyage des éléments du menu
+                    if (this.settingsOverlay) this.settingsOverlay.destroy();
+                    if (this.waitingText) this.waitingText.destroy();
+
+                    this.cards.forEach(card => {
+                        if (card.drawTimer) card.drawTimer.destroy();
+                    });
+
+                    // Utilisation de gameData (au lieu de data)
+                    this.scene.start('GameScene', {
+                        user: this.user,           // On passe l'utilisateur local
+                        settings: gameData.settings, // Données reçues du serveur
+                        players: gameData.players,   // Liste des joueurs
+                        seating: gameData.seating    // Positions à table
+                    });
+                });
+
+                // --- DISSOLUTION ---
+                socket.on('lobby_dissolved', () => {
                     this.cards.forEach((card, index) => {
                         if (index !== 1) card.updateData(null);
                     });
-
-                    // 2. IMPORTANT : On demande au serveur de nous reset proprement
                     socket.emit('leave_lobby');
-
-                    // 3. On remet l'ID du host sur nous-même localement
                     this.currentHostId = this.user.id || this.user._id;
                 });
 
@@ -142,14 +218,18 @@ export class MenuScene extends Phaser.Scene {
             }
         }
 
+        // --- NETTOYAGE ---
         this.events.on('shutdown', () => {
             const socket = socketService.getSocket();
             if (socket) {
                 socket.off('new_friend_request');
                 socket.off('receive_game_invitation');
                 socket.off('update_lobby');
+                socket.off('lobby_status_changed');
+                socket.off('game_started');
                 socket.off('lobby_dissolved');
                 socket.off('error_msg');
+                socket.off('configuration_cancelled');
             }
         });
     }
@@ -191,40 +271,6 @@ export class MenuScene extends Phaser.Scene {
             .on('pointerdown', () => this.handleLogout());
     }
 
-    showLeaveButton() {
-        if (this.leaveBtn) return;
-        const { width, height } = this.scale;
-
-        this.leaveBtn = this.add.container(width / 2, height - 70);
-        const bg = this.add.graphics();
-        bg.fillStyle(0xff4444, 0.2).fillRoundedRect(-110, -22, 220, 44, 12);
-        bg.lineStyle(2, 0xff4444, 0.8).strokeRoundedRect(-110, -22, 220, 44, 12);
-
-        const txt = this.add.text(0, 0, "❌ QUITTER LA TABLE", {
-            fontSize: '16px', fill: '#ff4444', fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        this.leaveBtn.add([bg, txt]);
-
-        bg.setInteractive(new Phaser.Geom.Rectangle(-110, -22, 220, 44), Phaser.Geom.Rectangle.Contains)
-            .on('pointerover', () => bg.alpha = 1.3)
-            .on('pointerout', () => bg.alpha = 1)
-            .on('pointerdown', () => {
-                const socket = socketService.getSocket();
-                if (socket) {
-                    socket.emit('leave_lobby');
-                    this.hideLeaveButton();
-                }
-            });
-    }
-
-    hideLeaveButton() {
-        if (this.leaveBtn) {
-            this.leaveBtn.destroy();
-            this.leaveBtn = null;
-        }
-    }
-
     createLobby(width, height) {
         const spacing = 220;
         const startX = width / 2 - (spacing * 1.5);
@@ -259,5 +305,107 @@ export class MenuScene extends Phaser.Scene {
         socketService.disconnect();
         localStorage.clear();
         window.location.href = "/";
+    }
+
+    createActionButtons(width, height) {
+        // --- BOUTON QUITTER (Haut Gauche) ---
+        this.leaveBtn = this.add.container(100, 130);
+        const lBg = this.add.graphics();
+        lBg.fillStyle(0xff4444, 0.8).fillRoundedRect(-60, -20, 120, 40, 8);
+        const lTxt = this.add.text(0, 0, "QUITTER", { fontSize: '14px', fontStyle: 'bold', fill: '#fff' }).setOrigin(0.5);
+        this.leaveBtn.add([lBg, lTxt]);
+        this.leaveBtn.setVisible(false);
+        lBg.setInteractive(new Phaser.Geom.Rectangle(-60, -20, 120, 40), Phaser.Geom.Rectangle.Contains)
+            .on('pointerdown', () => socketService.getSocket()?.emit('leave_lobby'));
+
+        // --- BOUTON ACTION (Bas Centre) ---
+        this.actionBtn = this.add.container(width / 2, height - 80);
+        this.actionBg = this.add.graphics();
+        this.actionTxt = this.add.text(0, 0, "PRÊT", { fontSize: '22px', fontStyle: 'bold', fill: '#fff' }).setOrigin(0.5);
+        this.actionBtn.add([this.actionBg, this.actionTxt]);
+
+        this.actionBtn.setInteractive(new Phaser.Geom.Rectangle(-110, -30, 220, 60), Phaser.Geom.Rectangle.Contains)
+            .on('pointerdown', () => this.handleActionClick());
+    }
+
+    updateActionBtnUI(isHost, isReady, canStart) {
+        this.actionBg.clear();
+
+        // 1. Compte des joueurs présents
+        const activePlayers = this.cards.filter(card => card.playerData !== null).length;
+
+        // 2. VERROUILLAGE : Si configuration en cours et pas Host, on cache tout
+        if (this.lobbyStatus === 'configuring' && !isHost) {
+            this.actionBtn.setVisible(false);
+            this.leaveBtn.setVisible(false);
+            return; // On arrête la fonction ici
+        }
+
+        // 3. RÉAFFICHAGE : Sinon on s'assure que c'est visible
+        this.actionBtn.setVisible(true);
+        // Le bouton quitter n'est visible que s'il y a plus d'un joueur
+        this.leaveBtn.setVisible(activePlayers > 1);
+
+        if (isHost) {
+            this.actionTxt.setText("CONFIGURER");
+
+            // CONDITION CRITIQUE : canStart doit être vrai ET il doit y avoir au moins 2 joueurs
+            const isActuallyCliquable = canStart && activePlayers >= 2;
+
+            const color = isActuallyCliquable ? 0xff9900 : 0x555555;
+            this.actionBg.fillStyle(color, 1).fillRoundedRect(-110, -30, 220, 60, 12);
+
+            this.actionBtn.setAlpha(isActuallyCliquable ? 1 : 0.5);
+
+            // On met à jour la variable globale pour bloquer le clic aussi
+            this.canStartGame = isActuallyCliquable;
+
+        } else {
+            // Logique pour les invités
+            this.actionTxt.setText(isReady ? "ANNULER" : "PRÊT");
+            const color = isReady ? 0xff4444 : 0x00cc66;
+            this.actionBg.fillStyle(color, 1).fillRoundedRect(-110, -30, 220, 60, 12);
+            this.actionBtn.setAlpha(1);
+        }
+
+        this.actionBg.lineStyle(2, 0xffffff, 1).strokeRoundedRect(-110, -30, 220, 60, 12);
+    }
+
+    handleActionClick() {
+        const socket = socketService.getSocket();
+        const isHost = (this.user.id || this.user._id).toString() === this.currentHostId?.toString();
+
+        console.log("🖱️ Clic Action. Host ?", isHost, "CanStartGame ?", this.canStartGame);
+
+        if (isHost) {
+            if (this.canStartGame) {
+                console.log("📤 Emission: start_configuring");
+                socket.emit('start_configuring');
+            } else {
+                console.log("❌ Action bloquée: canStartGame est false");
+            }
+        } else {
+            socket.emit('toggle_ready');
+        }
+    }
+
+    showWaitingMessage() {
+        if (this.waitingText) this.waitingText.destroy();
+
+        const { width, height } = this.scale;
+        this.waitingText = this.add.text(width / 2, height - 150, "Le Host configure la partie...", {
+            fontSize: '18px',
+            fill: '#00ffcc',
+            fontStyle: 'italic'
+        }).setOrigin(0.5);
+
+        // Animation de clignotement
+        this.tweens.add({
+            targets: this.waitingText,
+            alpha: 0.3,
+            duration: 800,
+            yoyo: true,
+            repeat: -1
+        });
     }
 }

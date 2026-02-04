@@ -50,6 +50,8 @@ export class LobbyCard extends Phaser.GameObjects.Container {
      * MÉTHODE CLÉ : Met à jour la carte dynamiquement (Transition Douce)
      */
   updateData(userData) {
+    this.playerData = userData;
+    
     if (userData) {
         // Si la carte était vide, on l'active
         if (!this.isOccupied) {
@@ -85,6 +87,22 @@ export class LobbyCard extends Phaser.GameObjects.Container {
             this.deactivate();
         }
     }
+
+        if (userData && userData.isReady) {
+        if (!this.readyTag) {
+            this.readyTag = this.scene.add.text(0, 80, "PRÊT", { 
+                backgroundColor: '#00ff00', color: '#000', padding: 4 
+            }).setOrigin(0.5);
+            this.add(this.readyTag);
+        }
+        this.readyTag.setVisible(true);
+    } else if (this.readyTag) {
+        this.readyTag.setVisible(false);
+    }
+
+
+
+
 }
 
     activate(userData) {
